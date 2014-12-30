@@ -309,6 +309,8 @@ else if (typeof define === 'function' && define.amd) {
             this.elements[i].addEventListener('keypress', function(event){
                 self.placeholderWrapper(this,event);
             });
+
+            return this;
         },
 
         bindClick: function(i) {
