@@ -80,6 +80,8 @@ describe('Initialization TestCase', function () {
                 disableDoubleReturn: false,
                 disableEditing: false,
                 disableToolbar: false,
+                disableAnchorForm: false,
+                disablePlaceholders: false,
                 elementsContainer: document.body,
                 contentWindow: window,
                 ownerDocument: document,
