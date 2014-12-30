@@ -299,16 +299,16 @@ else if (typeof define === 'function' && define.amd) {
         },
 
         bindKeypress: function(i) {
-            if (!this.options.disablePlaceholders) {
-                var self = this;
-
-                // Set up the keypress events
-                this.elements[i].addEventListener('keypress', function(event){
-                    self.placeholderWrapper(this,event);
-                });
+            if (this.options.disablePlaceholders) {
+                return this;
             }
 
-            return this;
+            var self = this;
+
+            // Set up the keypress events
+            this.elements[i].addEventListener('keypress', function(event){
+                self.placeholderWrapper(this,event);
+            });
         },
 
         bindClick: function(i) {
@@ -1169,42 +1169,26 @@ else if (typeof define === 'function' && define.amd) {
         },
 
         bindAnchorForm: function () {
-            if (this.anchorForm) {
-                var linkCancel = this.anchorForm.querySelector('a.medium-editor-toobar-anchor-close'),
-                    linkSave = this.anchorForm.querySelector('a.medium-editor-toobar-anchor-save'),
-                    self = this;
+            if (!this.anchorForm) {
+                return this;
+            }
 
-                this.on(this.anchorForm, 'click', function (e) {
-                    e.stopPropagation();
-                    self.keepToolbarAlive = true;
-                });
+            var linkCancel = this.anchorForm.querySelector('a.medium-editor-toobar-anchor-close'),
+                linkSave = this.anchorForm.querySelector('a.medium-editor-toobar-anchor-save'),
+                self = this;
 
-                this.on(this.anchorInput, 'keyup', function (e) {
-                    var button = null,
-                        target;
+            this.on(this.anchorForm, 'click', function (e) {
+                e.stopPropagation();
+                self.keepToolbarAlive = true;
+            });
 
-                    if (e.keyCode === 13) {
-                        e.preventDefault();
-                        if (self.options.anchorTarget && self.anchorTarget.checked) {
-                            target = "_blank";
-                        }
-                        else {
-                            target = "_self";
-                        }
+            this.on(this.anchorInput, 'keyup', function (e) {
+                var button = null,
+                    target;
 
-                        if (self.options.anchorButton && self.anchorButton.checked) {
-                            button = self.options.anchorButtonClass;
-                        }
-
-                        self.createLink(this, target, button);
-                    }
-                });
-
-                this.on(linkSave, 'click', function(e) {
-                    var button = null,
-                        target;
+                if (e.keyCode === 13) {
                     e.preventDefault();
-                    if ( self.options.anchorTarget && self.anchorTarget.checked) {
+                    if (self.options.anchorTarget && self.anchorTarget.checked) {
                         target = "_blank";
                     }
                     else {
@@ -1215,35 +1199,53 @@ else if (typeof define === 'function' && define.amd) {
                         button = self.options.anchorButtonClass;
                     }
 
-                    self.createLink(self.anchorInput, target, button);
-                }, true);
+                    self.createLink(this, target, button);
+                }
+            });
 
-                this.on(this.anchorInput, 'click', function (e) {
-                    // make sure not to hide form when cliking into the input
-                    e.stopPropagation();
-                    self.keepToolbarAlive = true;
-                });
+            this.on(linkSave, 'click', function(e) {
+                var button = null,
+                    target;
+                e.preventDefault();
+                if ( self.options.anchorTarget && self.anchorTarget.checked) {
+                    target = "_blank";
+                }
+                else {
+                    target = "_self";
+                }
 
-                // Hide the anchor form when focusing outside of it.
-                this.on(this.options.ownerDocument.body, 'click', function (e) {
-                    if (e.target !== self.anchorForm && !isDescendant(self.anchorForm, e.target) && !isDescendant(self.toolbarActions, e.target)) {
-                        self.keepToolbarAlive = false;
-                        self.checkSelection();
-                    }
-                }, true);
-                this.on(this.options.ownerDocument.body, 'focus', function (e) {
-                    if (e.target !== self.anchorForm && !isDescendant(self.anchorForm, e.target) && !isDescendant(self.toolbarActions, e.target)) {
-                        self.keepToolbarAlive = false;
-                        self.checkSelection();
-                    }
-                }, true);
+                if (self.options.anchorButton && self.anchorButton.checked) {
+                    button = self.options.anchorButtonClass;
+                }
 
-                this.on(linkCancel, 'click', function (e) {
-                    e.preventDefault();
-                    self.showToolbarActions();
-                    restoreSelection.call(self, self.savedSelection);
-                });
-            }
+                self.createLink(self.anchorInput, target, button);
+            }, true);
+
+            this.on(this.anchorInput, 'click', function (e) {
+                // make sure not to hide form when cliking into the input
+                e.stopPropagation();
+                self.keepToolbarAlive = true;
+            });
+
+            // Hide the anchor form when focusing outside of it.
+            this.on(this.options.ownerDocument.body, 'click', function (e) {
+                if (e.target !== self.anchorForm && !isDescendant(self.anchorForm, e.target) && !isDescendant(self.toolbarActions, e.target)) {
+                    self.keepToolbarAlive = false;
+                    self.checkSelection();
+                }
+            }, true);
+            this.on(this.options.ownerDocument.body, 'focus', function (e) {
+                if (e.target !== self.anchorForm && !isDescendant(self.anchorForm, e.target) && !isDescendant(self.toolbarActions, e.target)) {
+                    self.keepToolbarAlive = false;
+                    self.checkSelection();
+                }
+            }, true);
+
+            this.on(linkCancel, 'click', function (e) {
+                e.preventDefault();
+                self.showToolbarActions();
+                restoreSelection.call(self, self.savedSelection);
+            });
 
             return this;
         },
@@ -1620,28 +1622,29 @@ else if (typeof define === 'function' && define.amd) {
         },
 
         setPlaceholders: function () {
-            if (!this.options.disablePlaceholders) {
-                var i,
-                    activatePlaceholder = function (el) {
-                        if (!(el.querySelector('img')) &&
-                                !(el.querySelector('blockquote')) &&
-                                el.textContent.replace(/^\s+|\s+$/g, '') === '') {
-                            el.classList.add('medium-editor-placeholder');
-                        }
-                    },
-                    placeholderWrapper = function (e) {
-                        this.classList.remove('medium-editor-placeholder');
-                        if (e.type !== 'keypress') {
-                            activatePlaceholder(this);
-                        }
-                    };
-                for (i = 0; i < this.elements.length; i += 1) {
-                    activatePlaceholder(this.elements[i]);
-                    this.on(this.elements[i], 'blur', placeholderWrapper);
-                    this.on(this.elements[i], 'keypress', placeholderWrapper);
-                }
+            if (this.options.disablePlaceholders) {
+                return this;
             }
-            return this;
+            
+            var i,
+                activatePlaceholder = function (el) {
+                    if (!(el.querySelector('img')) &&
+                            !(el.querySelector('blockquote')) &&
+                            el.textContent.replace(/^\s+|\s+$/g, '') === '') {
+                        el.classList.add('medium-editor-placeholder');
+                    }
+                },
+                placeholderWrapper = function (e) {
+                    this.classList.remove('medium-editor-placeholder');
+                    if (e.type !== 'keypress') {
+                        activatePlaceholder(this);
+                    }
+                };
+            for (i = 0; i < this.elements.length; i += 1) {
+                activatePlaceholder(this.elements[i]);
+                this.on(this.elements[i], 'blur', placeholderWrapper);
+                this.on(this.elements[i], 'keypress', placeholderWrapper);
+            }
         },
 
         cleanPaste: function (text) {
