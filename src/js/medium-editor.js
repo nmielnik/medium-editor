@@ -1157,15 +1157,17 @@ else if (typeof define === 'function' && define.amd) {
         },
 
         showAnchorForm: function (link_value) {
-            if (this.anchorForm) {
-                this.toolbarActions.style.display = 'none';
-                this.saveSelection();
-                this.anchorForm.style.display = 'block';
-                this.setToolbarPosition();
-                this.keepToolbarAlive = true;
-                this.anchorInput.focus();
-                this.anchorInput.value = link_value || '';
+            if (!this.anchorForm) {
+                return;
             }
+
+            this.toolbarActions.style.display = 'none';
+            this.saveSelection();
+            this.anchorForm.style.display = 'block';
+            this.setToolbarPosition();
+            this.keepToolbarAlive = true;
+            this.anchorInput.focus();
+            this.anchorInput.value = link_value || '';
         },
 
         bindAnchorForm: function () {
@@ -1625,7 +1627,7 @@ else if (typeof define === 'function' && define.amd) {
             if (this.options.disablePlaceholders) {
                 return this;
             }
-            
+
             var i,
                 activatePlaceholder = function (el) {
                     if (!(el.querySelector('img')) &&
@@ -1645,6 +1647,7 @@ else if (typeof define === 'function' && define.amd) {
                 this.on(this.elements[i], 'blur', placeholderWrapper);
                 this.on(this.elements[i], 'keypress', placeholderWrapper);
             }
+            return this;
         },
 
         cleanPaste: function (text) {
