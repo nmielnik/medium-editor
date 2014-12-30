@@ -1361,7 +1361,7 @@ else if (typeof define === 'function' && define.amd) {
         },
 
         anchorPreviewClickHandler: function (e) {
-            if (this.activeAnchor) {
+            if (!this.options.disableAnchorForm && this.activeAnchor) {
 
                 var self = this,
                     range = this.options.ownerDocument.createRange(),
