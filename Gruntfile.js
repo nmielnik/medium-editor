@@ -21,7 +21,8 @@ module.exports = function (grunt) {
                 unparam: true,
                 todo: true,
                 debug: true,
-                white: true
+                white: true,
+                nomen: true
             }
         }
     };
